@@ -17,7 +17,7 @@ DefaultDirName={localappdata}\{#MyAppName}
 DefaultGroupName={#MyAppDisplayName}
 DisableProgramGroupPage=yes
 OutputBaseFilename={#MyAppName}-Setup-{#MyAppVersion}-{#MyPlatform}
-OutputDir=bin\Release\installer
+OutputDir={{OUTPUT_DIR}}
 Compression=lzma
 SolidCompression=yes
 PrivilegesRequired=lowest
@@ -28,7 +28,7 @@ ArchitecturesInstallIn64BitMode={#MyPlatform}
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "bin\Release\win-{#MyPlatform}\publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{{PUBLISH_DIR}}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Registry]
 Root: HKCU; Subkey: "SOFTWARE\Classes\CLSID\{#MyCLSID}"; ValueType: string; ValueName: ""; ValueData: "{#MyAppName}"; Flags: uninsdeletekey

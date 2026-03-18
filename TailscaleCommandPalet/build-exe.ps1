@@ -36,9 +36,23 @@ foreach ($platform in $Platforms) {
 
     Write-Host "=== Creating installer for $platform ===" -ForegroundColor Cyan
 
+    # Find the publish directory (dotnet publish with -p:Platform outputs to bin\<platform>\Release\...)
+    $publishDir = Get-ChildItem -Path (Join-Path $ProjectDir "bin") -Recurse -Directory -Filter "publish" |
+        Where-Object { $_.FullName -match "Release" -and $_.FullName -match "win-$platform" } |
+        Select-Object -First 1 -ExpandProperty FullName
+
+    if (-not $publishDir) {
+        Write-Error "Could not find publish directory for $platform"
+        exit 1
+    }
+
+    Write-Host "Publish directory: $publishDir"
+
     $issContent = Get-Content $TemplateFile -Raw
-    $issContent = $issContent -replace '{{VERSION}}', $Version
-    $issContent = $issContent -replace '{{PLATFORM}}', $platform
+    $issContent = $issContent.Replace('{{VERSION}}', $Version)
+    $issContent = $issContent.Replace('{{PLATFORM}}', $platform)
+    $issContent = $issContent.Replace('{{PUBLISH_DIR}}', $publishDir)
+    $issContent = $issContent.Replace('{{OUTPUT_DIR}}', $InstallerDir)
 
     $issFile = Join-Path $ProjectDir "setup-$platform.iss"
     $issContent | Set-Content -Path $issFile -Encoding UTF8
