@@ -1,0 +1,42 @@
+name: Update WinGet
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish (e.g. 1.0.0)"
+        required: true
+
+jobs:
+  update:
+    runs-on: windows-latest
+    steps:
+      - name: Determine version
+        id: version
+        run: |
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            $version = "${{ inputs.version }}"
+          } else {
+            $version = "${{ github.event.release.tag_name }}" -replace '^v', ''
+          }
+          echo "VERSION=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Install wingetcreate
+        run: |
+          Invoke-WebRequest -Uri https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
+
+      - name: Update WinGet manifest
+        run: |
+          $version = "${{ steps.version.outputs.VERSION }}"
+          $repo = "${{ github.repository }}"
+          $x64Url = "https://github.com/$repo/releases/download/$version/TailscaleCommandPalet-Setup-$version-x64.exe"
+          $arm64Url = "https://github.com/$repo/releases/download/$version/TailscaleCommandPalet-Setup-$version-arm64.exe"
+
+          .\wingetcreate.exe update `
+            --id nickknissen.TailscaleCommandPalet `
+            --version $version `
+            --urls $x64Url $arm64Url `
+            --token ${{ secrets.WINGET_PAT }} `
+            --submit

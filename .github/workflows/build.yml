@@ -25,4 +25,4 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Build Extension (${{ matrix.platform }})
-        run: dotnet build --configuration Release -p:GenerateAppxPackageOnBuild=true -p:Platform=${{ matrix.platform }}
+        run: dotnet build --configuration Release -p:Platform=${{ matrix.platform }}
