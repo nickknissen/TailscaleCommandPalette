@@ -35,8 +35,30 @@ jobs:
           $arm64Url = "https://github.com/$repo/releases/download/$version/TailscaleCommandPalet-Setup-$version-arm64.exe"
 
           .\wingetcreate.exe update `
-            --id nickknissen.TailscaleCommandPalet `
+            --id nickknissen.TailscaleCommandPalette `
             --version $version `
             --urls $x64Url $arm64Url `
+            --out manifests
+
+          $localeFile = Get-ChildItem -Path manifests -Recurse -Filter "*.locale.en-US.yaml" | Select-Object -First 1
+          $content = Get-Content $localeFile.FullName -Raw
+
+          # Add missing fields before ManifestType line
+          $fields = @"
+          PublisherUrl: https://github.com/nickknissen
+          PublisherSupportUrl: https://github.com/nickknissen/TailscaleCommandPalet/issues
+          PackageUrl: https://github.com/nickknissen/TailscaleCommandPalet
+          LicenseUrl: https://github.com/nickknissen/TailscaleCommandPalet/blob/main/LICENSE
+          Tags:
+          - tailscale
+          - command-palette
+          - powertoys
+          - windows-commandpalette-extension
+          "@
+          $fields = ($fields -split "`n" | ForEach-Object { $_.Trim() }) -join "`n"
+          $content = $content -replace '(?m)^ManifestType:', "$fields`nManifestType:"
+          Set-Content $localeFile.FullName -Value $content -NoNewline
+
+          .\wingetcreate.exe submit `
             --token ${{ secrets.WINGET_PAT }} `
-            --submit
+            manifests
