@@ -46,9 +46,9 @@ jobs:
           # Add missing fields before ManifestType line
           $fields = @"
           PublisherUrl: https://github.com/nickknissen
-          PublisherSupportUrl: https://github.com/nickknissen/TailscaleCommandPalet/issues
-          PackageUrl: https://github.com/nickknissen/TailscaleCommandPalet
-          LicenseUrl: https://github.com/nickknissen/TailscaleCommandPalet/blob/main/LICENSE
+          PublisherSupportUrl: https://github.com/nickknissen/TailscaleCommandPalette/issues
+          PackageUrl: https://github.com/nickknissen/TailscaleCommandPalette
+          LicenseUrl: https://github.com/nickknissen/TailscaleCommandPalette/blob/main/LICENSE
           Tags:
           - tailscale
           - command-palette

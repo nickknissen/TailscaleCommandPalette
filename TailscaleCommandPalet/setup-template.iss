@@ -2,9 +2,9 @@
 #define MyAppDisplayName "Tailscale Command Palette"
 #define MyAppVersion "{{VERSION}}"
 #define MyAppPublisher "nickknissen"
-#define MyAppURL "https://github.com/nickknissen/TailscaleCommandPalet"
+#define MyAppURL "https://github.com/nickknissen/TailscaleCommandPalette"
 #define MyAppExeName "TailscaleCommandPalet.exe"
-#define MyCLSID "{{d4e5f6a7-b8c9-4d0e-a1b2-c3d4e5f6a7b8}}"
+#define MyCLSID "d4e5f6a7-b8c9-4d0e-a1b2-c3d4e5f6a7b8"
 #define MyPlatform "{{PLATFORM}}"
 
 [Setup]
@@ -31,8 +31,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Source: "{{PUBLISH_DIR}}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Registry]
-Root: HKCU; Subkey: "SOFTWARE\Classes\CLSID\{#MyCLSID}"; ValueType: string; ValueName: ""; ValueData: "{#MyAppName}"; Flags: uninsdeletekey
-Root: HKCU; Subkey: "SOFTWARE\Classes\CLSID\{#MyCLSID}\LocalServer32"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName}"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "SOFTWARE\Classes\CLSID\{{{#MyCLSID}}"; ValueType: string; ValueName: ""; ValueData: "{#MyAppName}"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "SOFTWARE\Classes\CLSID\{{{#MyCLSID}}\LocalServer32"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName}"; Flags: uninsdeletekey
 
 [Icons]
 Name: "{group}\{#MyAppDisplayName}"; Filename: "{app}\{#MyAppExeName}"

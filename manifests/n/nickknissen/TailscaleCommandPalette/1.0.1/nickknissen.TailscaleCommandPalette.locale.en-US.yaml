@@ -6,11 +6,11 @@ PackageVersion: 1.0.1
 PackageLocale: en-US
 Publisher: nickknissen
 PublisherUrl: https://github.com/nickknissen
-PublisherSupportUrl: https://github.com/nickknissen/TailscaleCommandPalet/issues
+PublisherSupportUrl: https://github.com/nickknissen/TailscaleCommandPalette/issues
 PackageName: Tailscale Command Palette
-PackageUrl: https://github.com/nickknissen/TailscaleCommandPalet
+PackageUrl: https://github.com/nickknissen/TailscaleCommandPalette
 License: MIT
-LicenseUrl: https://github.com/nickknissen/TailscaleCommandPalet/blob/main/LICENSE
+LicenseUrl: https://github.com/nickknissen/TailscaleCommandPalette/blob/main/LICENSE
 ShortDescription: Tailscale for Command Palette
 Tags:
 - tailscale
