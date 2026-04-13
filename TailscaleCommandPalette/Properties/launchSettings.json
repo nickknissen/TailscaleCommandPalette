@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "TailscaleCommandPalette (Package)": {
+      "commandName": "MsixPackage",
+      "doNotLaunchApp": true
+    },
+    "TailscaleCommandPalette (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+// Copyright (c) Microsoft Corporation
+// The Microsoft Corporation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
+using System;
+using System.Runtime.InteropServices;
+using System.Threading;
+using Microsoft.CommandPalette.Extensions;
+
+namespace TailscaleCommandPalette;
+
+[Guid("3cfcf7d9-5533-4a0a-84b5-f4fa498eb009")]
+public sealed partial class TailscaleCommandPalette : IExtension, IDisposable
+{
+    private readonly ManualResetEvent _extensionDisposedEvent;
+
+    private readonly TailscaleCommandPaletteCommandsProvider _provider = new();
+
+    public TailscaleCommandPalette(ManualResetEvent extensionDisposedEvent)
+    {
+        this._extensionDisposedEvent = extensionDisposedEvent;
+    }
+
+    public object? GetProvider(ProviderType providerType)
+    {
+        return providerType switch
+        {
+            ProviderType.Commands => _provider,
+            _ => null,
+        };
+    }
+
+    public void Dispose() => this._extensionDisposedEvent.Set();
+}
