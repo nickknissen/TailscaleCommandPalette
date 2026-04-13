@@ -77,6 +77,12 @@ jobs:
           }
           Set-Content $installerFile.FullName -Value $installerContent -NoNewline
 
+          $token = "${{ secrets.WINGET_PAT }}"
+          if (-not $token) {
+            Write-Error "WINGET_PAT secret is not set or empty"
+            exit 1
+          }
+
           .\wingetcreate.exe submit `
-            --token ${{ secrets.WINGET_PAT }} `
+            --token "$token" `
             manifests
