@@ -36,8 +36,7 @@ jobs:
           $x64Url = "https://github.com/$repo/releases/download/$version/TailscaleCommandPalette-Setup-$version-x64.exe"
           $arm64Url = "https://github.com/$repo/releases/download/$version/TailscaleCommandPalette-Setup-$version-arm64.exe"
 
-          .\wingetcreate.exe update `
-            --id nickknissen.TailscaleCommandPalette `
+          .\wingetcreate.exe update nickknissen.TailscaleCommandPalette `
             --version $version `
             --urls $x64Url $arm64Url `
             --out manifests
