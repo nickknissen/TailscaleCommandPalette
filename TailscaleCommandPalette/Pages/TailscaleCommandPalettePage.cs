@@ -13,7 +13,7 @@ internal sealed partial class TailscaleCommandPalettePage : ListPage
     public TailscaleCommandPalettePage()
     {
         Icon = IconHelpers.FromRelativePath("Assets\\StoreLogo.png");
-        Title = "Tailscale";
+        Title = "All devices";
         Name = "Open";
         _deviceService = new TailscaleDeviceService();
     }

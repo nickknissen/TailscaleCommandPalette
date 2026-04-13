@@ -1,7 +1,7 @@
 using System;
-using System.Diagnostics;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using TailscaleCommandPalette.Helpers;
 using TailscaleCommandPalette.Models;
 
 namespace TailscaleCommandPalette.Commands;
@@ -21,29 +21,11 @@ internal sealed partial class CopyDnsNameCommand : InvokableCommand
     {
         try
         {
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = "powershell",
-                Arguments = $"-NoProfile -Command \"Set-Clipboard -Value '{_device.DNSName}'\"",
-                UseShellExecute = false,
-                CreateNoWindow = true,
-            };
-
-            Process.Start(startInfo);
-
+            ProcessClipboardHelper.SetText(_device.DNSName);
             return CommandResult.Dismiss();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            var errorStartInfo = new ProcessStartInfo
-            {
-                FileName = "cmd",
-                Arguments = $"/c echo Error copying DNS name: {ex.Message} & pause",
-                UseShellExecute = true,
-            };
-
-            Process.Start(errorStartInfo);
-
             return CommandResult.KeepOpen();
         }
     }
