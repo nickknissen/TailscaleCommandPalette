@@ -13,7 +13,7 @@ public partial class TailscaleCommandPaletteCommandsProvider : CommandProvider
 
     public TailscaleCommandPaletteCommandsProvider()
     {
-        DisplayName = "Tailscale Command Palette";
+        DisplayName = "Tailscale"; // Menu item shown in cmd palette
         Icon = IconHelpers.FromRelativePath("Assets\\StoreLogo.png");
         _commands = [
             new CommandItem(new TailscaleCommandPalettePage()) { Title = DisplayName },
