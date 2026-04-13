@@ -96,7 +96,7 @@ foreach ($Platform in $Platforms) {
     }
 
     $setupScriptPath = Join-Path $ProjectDir "setup-$Platform.iss"
-    $setupScript | Out-File -FilePath $setupScriptPath -Encoding utf8
+    Set-Content -Path $setupScriptPath -Value $setupScript -Encoding utf8 -NoNewline
 
     Write-Host "Creating $Platform installer with Inno Setup..." -ForegroundColor Yellow
     & $InnoSetupPath $setupScriptPath

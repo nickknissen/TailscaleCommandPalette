@@ -32,7 +32,7 @@ Name: "{group}\Uninstall Tailscale Command Palette"; Filename: "{uninstallexe}"
 
 [Registry]
 Root: HKCU; Subkey: "SOFTWARE\Classes\CLSID\{{d4e5f6a7-b8c9-4d0e-a1b2-c3d4e5f6a7b8}}"; ValueType: string; ValueData: "TailscaleCommandPalette"; Flags: uninsdeletekey
-Root: HKCU; Subkey: "SOFTWARE\Classes\CLSID\{{d4e5f6a7-b8c9-4d0e-a1b2-c3d4e5f6a7b8}}\LocalServer32"; ValueType: string; ValueData: '"{app}\TailscaleCommandPalette.exe" -RegisterProcessAsComServer'; Flags: uninsdeletekey
+Root: HKCU; Subkey: "SOFTWARE\Classes\CLSID\{{d4e5f6a7-b8c9-4d0e-a1b2-c3d4e5f6a7b8}}\LocalServer32"; ValueType: string; ValueData: """{app}\TailscaleCommandPalette.exe"" -RegisterProcessAsComServer"; Flags: uninsdeletekey
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
