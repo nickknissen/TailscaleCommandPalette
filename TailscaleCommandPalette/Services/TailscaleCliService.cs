@@ -16,17 +16,26 @@ public sealed class TailscaleCliService
     private DateTime _cacheTime = DateTime.MinValue;
     private static readonly TimeSpan CacheDuration = TimeSpan.FromSeconds(15);
 
-    public TailscaleQueryResult GetStatus()
+    public TailscaleQueryResult GetStatus(bool requireConnected = true)
     {
         lock (_cacheLock)
         {
             if (_cachedResult is not null && DateTime.UtcNow - _cacheTime < CacheDuration)
             {
+                if (!requireConnected && _cachedResult.ErrorKind == TailscaleErrorKind.NotConnected && _cachedResult.Status is not null)
+                {
+                    return new TailscaleQueryResult
+                    {
+                        Status = _cachedResult.Status,
+                        ErrorKind = TailscaleErrorKind.None,
+                    };
+                }
+
                 return _cachedResult;
             }
         }
 
-        var result = LoadStatus();
+        var result = LoadStatus(requireConnected);
 
         lock (_cacheLock)
         {
@@ -91,7 +100,7 @@ public sealed class TailscaleCliService
         }
     }
 
-    private TailscaleQueryResult LoadStatus()
+    private TailscaleQueryResult LoadStatus(bool requireConnected)
     {
         try
         {
@@ -116,9 +125,10 @@ public sealed class TailscaleCliService
             {
                 return new TailscaleQueryResult
                 {
-                    ErrorKind = TailscaleErrorKind.NotConnected,
-                    ErrorTitle = "Not connected to a tailnet",
-                    ErrorDescription = "Tailscale is running, but this device is not currently connected.",
+                    Status = status,
+                    ErrorKind = requireConnected ? TailscaleErrorKind.NotConnected : TailscaleErrorKind.None,
+                    ErrorTitle = requireConnected ? "Not connected to a tailnet" : string.Empty,
+                    ErrorDescription = requireConnected ? "Tailscale is running, but this device is not currently connected." : string.Empty,
                 };
             }
 
