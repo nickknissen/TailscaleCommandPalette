@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using TailscaleCommandPalette.Services;
@@ -30,26 +29,19 @@ internal sealed partial class TailscaleCliCommand : InvokableCommand
         try
         {
             var (success, message) = _action(_service);
-            ShowMessage(success ? message : $"Tailscale command failed: {message}", success);
-            return success ? CommandResult.Dismiss() : CommandResult.KeepOpen();
+            return CommandResult.ShowToast(new ToastArgs
+            {
+                Message = success ? message : $"Tailscale command failed: {message}",
+                Result = success ? CommandResult.Dismiss() : CommandResult.KeepOpen(),
+            });
         }
         catch (Exception ex)
         {
-            ShowMessage($"Unexpected error: {ex.Message}", false);
-            return CommandResult.KeepOpen();
+            return CommandResult.ShowToast(new ToastArgs
+            {
+                Message = $"Unexpected error: {ex.Message}",
+                Result = CommandResult.KeepOpen(),
+            });
         }
     }
-
-    private static void ShowMessage(string message, bool success)
-    {
-        Process.Start(new ProcessStartInfo
-        {
-            FileName = "powershell",
-            Arguments = $"-NoProfile -Command \"Add-Type -AssemblyName PresentationFramework; [System.Windows.MessageBox]::Show('{Escape(message)}', '{(success ? "Tailscale" : "Tailscale Error")}')\"",
-            UseShellExecute = false,
-            CreateNoWindow = true,
-        });
-    }
-
-    private static string Escape(string value) => value.Replace("'", "''");
 }

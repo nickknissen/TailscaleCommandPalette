@@ -26,23 +26,29 @@ public partial class TailscaleCommandPaletteCommandsProvider : CommandProvider
             Name = "Admin Console",
             Icon = commandIcon,
         };
-        var connectCommand = new TailscaleCliCommand(service, "Connect", s => s.Connect());
-        var disconnectCommand = new TailscaleCliCommand(service, "Disconnect", s => s.Disconnect());
-        var toggleConnectionCommand = new TailscaleCliCommand(service, "Toggle Connection", s => s.ToggleConnection());
+
+        var connectionStatus = service.GetStatus(requireConnected: false);
+        var isConnected = connectionStatus.Status?.IsConnected == true;
+        var connectionSubtitle = connectionStatus.HasError
+            ? connectionStatus.ErrorTitle
+            : isConnected
+                ? string.IsNullOrWhiteSpace(connectionStatus.Status?.TailnetName)
+                    ? "Connected"
+                    : $"Connected on {connectionStatus.Status.TailnetName}"
+                : "Disconnected";
+        var connectionCommand = isConnected
+            ? new TailscaleCliCommand(service, "Down", s => s.Disconnect())
+            : new TailscaleCliCommand(service, "Up", s => s.Connect());
 
         _commands = [
             new CommandItem(new TailscaleCommandPalettePage(service)) { Title = "All Devices", Icon = commandIcon },
             new CommandItem(new MyDevicesPage(service)) { Title = "My Devices", Icon = commandIcon },
             new CommandItem(new StatusPage(service)) { Title = "Status", Icon = commandIcon },
-            new CommandItem(toggleConnectionCommand)
+            new CommandItem(connectionCommand)
             {
                 Title = "Connection",
-                Subtitle = "Toggle, connect, or disconnect",
+                Subtitle = connectionSubtitle,
                 Icon = commandIcon,
-                MoreCommands = [
-                    new CommandContextItem(connectCommand),
-                    new CommandContextItem(disconnectCommand),
-                ],
             },
             new CommandItem(adminCommand) { Title = "Admin Console", Icon = commandIcon },
         ];
