@@ -25,4 +25,10 @@ jobs:
           dotnet-version: 9.0.x
 
       - name: Build Extension (${{ matrix.platform }})
-        run: dotnet build TailscaleCommandPalette/TailscaleCommandPalette.csproj --configuration Release -p:Platform=${{ matrix.platform }} -p:RuntimeIdentifier=win-${{ matrix.platform }}
+        run: >-
+          dotnet build TailscaleCommandPalette/TailscaleCommandPalette.csproj
+          --configuration Release
+          -p:Platform=${{ matrix.platform }}
+          -p:RuntimeIdentifier=win-${{ matrix.platform }}
+          -p:PublishSingleFile=false
+          -p:PublishTrimmed=false
