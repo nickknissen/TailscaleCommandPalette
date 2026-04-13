@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net;
+using System.Net.Sockets;
 using System.Text.Json;
 using System.Threading.Tasks;
 using TailscaleCommandPalette.Models;
@@ -146,8 +148,26 @@ public class TailscaleDeviceService
         if (peer.TryGetProperty("LastSeen", out var lastSeen))
             device.LastSeen = lastSeen.GetString() ?? string.Empty;
 
-        if (peer.TryGetProperty("TailscaleIPs", out var ips) && ips.GetArrayLength() > 0)
-            device.TailscaleIP = ips[0].GetString() ?? string.Empty;
+        if (peer.TryGetProperty("TailscaleIPs", out var ips))
+        {
+            foreach (var ipElement in ips.EnumerateArray())
+            {
+                var ipString = ipElement.GetString();
+                if (string.IsNullOrWhiteSpace(ipString) || !IPAddress.TryParse(ipString, out var ipAddress))
+                {
+                    continue;
+                }
+
+                if (ipAddress.AddressFamily == AddressFamily.InterNetwork && string.IsNullOrEmpty(device.TailscaleIPv4))
+                {
+                    device.TailscaleIPv4 = ipString;
+                }
+                else if (ipAddress.AddressFamily == AddressFamily.InterNetworkV6 && string.IsNullOrEmpty(device.TailscaleIPv6))
+                {
+                    device.TailscaleIPv6 = ipString;
+                }
+            }
+        }
 
         if (peer.TryGetProperty("UserID", out var userId) && users.TryGetValue(userId.GetInt64(), out var userName))
             device.UserDisplayName = userName;

@@ -1,7 +1,6 @@
 using System.Linq;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
-using TailscaleCommandPalette.Commands;
 using TailscaleCommandPalette.Services;
 
 namespace TailscaleCommandPalette;
@@ -32,12 +31,46 @@ internal sealed partial class TailscaleCommandPalettePage : ListPage
         return devices
             .Select(device =>
             {
-                var command = new CopyTailscaleIpCommand(device);
-                var copyDnsCommand = new CopyDnsNameCommand(device);
-                var openInBrowserCommand = new OpenInBrowserCommand(device);
+                var defaultCopyValue = !string.IsNullOrWhiteSpace(device.TailscaleIPv4)
+                    ? device.TailscaleIPv4
+                    : device.TailscaleIPv6;
+
+                var command = new CopyTextCommand(defaultCopyValue)
+                {
+                    Name = !string.IsNullOrWhiteSpace(device.TailscaleIPv4) ? "Copy IPv4" : "Copy IPv6",
+                };
+                var copyIPv6Command = new CopyTextCommand(device.TailscaleIPv6)
+                {
+                    Name = "Copy IPv6",
+                };
+                var copyDnsCommand = new CopyTextCommand(device.DNSName)
+                {
+                    Name = "Copy MagicDNS",
+                };
+                var openInBrowserCommand = new OpenUrlCommand($"http://{device.DNSName}")
+                {
+                    Name = "Open in browser",
+                };
 
                 var title = device.HostName;
-                var subtitle = $"{device.TailscaleIP} — {device.DNSName}";
+                var addressParts = new[] { device.TailscaleIPv4, device.TailscaleIPv6 }
+                    .Where(x => !string.IsNullOrWhiteSpace(x));
+                var subtitle = $"{string.Join(" • ", addressParts)} — {device.DNSName}";
+
+                var moreCommands = new System.Collections.Generic.List<CommandContextItem>();
+                if (!string.IsNullOrWhiteSpace(device.TailscaleIPv6))
+                {
+                    moreCommands.Add(new CommandContextItem(copyIPv6Command));
+                }
+
+                moreCommands.Add(new CommandContextItem(copyDnsCommand)
+                {
+                    RequestedShortcut = new KeyChord(Windows.System.VirtualKeyModifiers.Shift, 0, 0),
+                });
+                moreCommands.Add(new CommandContextItem(openInBrowserCommand)
+                {
+                    RequestedShortcut = new KeyChord(Windows.System.VirtualKeyModifiers.Control, 0, 0),
+                });
 
                 return new ListItem(command)
                 {
@@ -45,16 +78,7 @@ internal sealed partial class TailscaleCommandPalettePage : ListPage
                     Subtitle = subtitle,
                     Tags = GetTags(device),
                     Section = device.IsSelf ? "This Device" : device.Online ? "Online" : "Offline",
-                    MoreCommands = [
-                        new CommandContextItem(copyDnsCommand)
-                        {
-                            RequestedShortcut = new KeyChord(Windows.System.VirtualKeyModifiers.Shift, 0, 0),
-                        },
-                        new CommandContextItem(openInBrowserCommand)
-                        {
-                            RequestedShortcut = new KeyChord(Windows.System.VirtualKeyModifiers.Control, 0, 0),
-                        },
-                    ],
+                    MoreCommands = moreCommands.ToArray(),
                 };
             })
             .OrderBy(x => x.Section == "This Device" ? 0 : x.Section == "Online" ? 1 : 2)
