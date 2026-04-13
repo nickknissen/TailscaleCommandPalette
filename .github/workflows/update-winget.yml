@@ -83,6 +83,7 @@ jobs:
             exit 1
           }
 
+          $manifestDir = (Get-ChildItem -Path manifests -Recurse -Filter "*.yaml" | Select-Object -First 1).DirectoryName
           .\wingetcreate.exe submit `
             --token "$token" `
-            manifests
+            "$manifestDir"
