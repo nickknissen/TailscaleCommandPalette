@@ -17,10 +17,15 @@ public partial class TailscaleCommandPaletteCommandsProvider : CommandProvider
     public TailscaleCommandPaletteCommandsProvider()
     {
         DisplayName = "Tailscale";
-        Icon = IconHelpers.FromRelativePath("Assets\\StoreLogo.png");
+        Icon = IconHelpers.FromRelativePath("Assets\\Square44x44Logo.scale-200.png");
 
         var service = new TailscaleCliService();
-        var commandIcon = IconHelpers.FromRelativePath("Assets\\StoreLogo.png");
+        var commandIcon = IconHelpers.FromRelativePath("Assets\\Square44x44Logo.scale-200.png");
+        var adminCommand = new OpenUrlCommand("https://login.tailscale.com/admin/machines")
+        {
+            Name = "Admin Console",
+            Icon = commandIcon,
+        };
 
         _commands = [
             new CommandItem(new TailscaleCommandPalettePage(service)) { Title = "All Devices", Icon = commandIcon },
@@ -28,7 +33,7 @@ public partial class TailscaleCommandPaletteCommandsProvider : CommandProvider
             new CommandItem(new TailscaleCliCommand(service, "Connect", s => s.Connect())) { Title = "Connect", Icon = commandIcon },
             new CommandItem(new TailscaleCliCommand(service, "Disconnect", s => s.Disconnect())) { Title = "Disconnect", Icon = commandIcon },
             new CommandItem(new TailscaleCliCommand(service, "Toggle Connection", s => s.ToggleConnection())) { Title = "Toggle Connection", Icon = commandIcon },
-            new CommandItem(new OpenUrlCommand("https://login.tailscale.com/admin/machines") { Name = "Admin Console" }) { Title = "Admin Console", Icon = commandIcon },
+            new CommandItem(adminCommand) { Title = "Admin Console", Icon = commandIcon },
         ];
     }
 

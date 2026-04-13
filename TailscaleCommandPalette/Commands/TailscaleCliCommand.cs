@@ -20,6 +20,7 @@ internal sealed partial class TailscaleCliCommand : InvokableCommand
         _service = service;
         _name = name;
         _action = action;
+        Icon = IconHelpers.FromRelativePath("Assets\\Square44x44Logo.scale-200.png");
     }
 
     public override string Name => _name;

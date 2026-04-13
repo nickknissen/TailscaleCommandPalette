@@ -18,7 +18,7 @@ internal partial class TailscaleDevicesPage : ListPage
         _service = service;
         _onlyCurrentUser = onlyCurrentUser;
 
-        Icon = IconHelpers.FromRelativePath("Assets\\StoreLogo.png");
+        Icon = IconHelpers.FromRelativePath("Assets\\Square44x44Logo.scale-200.png");
         Title = onlyCurrentUser ? "My devices" : "All devices";
         Name = "Open";
     }
