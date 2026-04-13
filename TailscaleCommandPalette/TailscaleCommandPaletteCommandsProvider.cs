@@ -26,13 +26,24 @@ public partial class TailscaleCommandPaletteCommandsProvider : CommandProvider
             Name = "Admin Console",
             Icon = commandIcon,
         };
+        var connectCommand = new TailscaleCliCommand(service, "Connect", s => s.Connect());
+        var disconnectCommand = new TailscaleCliCommand(service, "Disconnect", s => s.Disconnect());
+        var toggleConnectionCommand = new TailscaleCliCommand(service, "Toggle Connection", s => s.ToggleConnection());
 
         _commands = [
             new CommandItem(new TailscaleCommandPalettePage(service)) { Title = "All Devices", Icon = commandIcon },
             new CommandItem(new MyDevicesPage(service)) { Title = "My Devices", Icon = commandIcon },
-            new CommandItem(new TailscaleCliCommand(service, "Connect", s => s.Connect())) { Title = "Connect", Icon = commandIcon },
-            new CommandItem(new TailscaleCliCommand(service, "Disconnect", s => s.Disconnect())) { Title = "Disconnect", Icon = commandIcon },
-            new CommandItem(new TailscaleCliCommand(service, "Toggle Connection", s => s.ToggleConnection())) { Title = "Toggle Connection", Icon = commandIcon },
+            new CommandItem(new StatusPage(service)) { Title = "Status", Icon = commandIcon },
+            new CommandItem(toggleConnectionCommand)
+            {
+                Title = "Connection",
+                Subtitle = "Toggle, connect, or disconnect",
+                Icon = commandIcon,
+                MoreCommands = [
+                    new CommandContextItem(connectCommand),
+                    new CommandContextItem(disconnectCommand),
+                ],
+            },
             new CommandItem(adminCommand) { Title = "Admin Console", Icon = commandIcon },
         ];
     }
