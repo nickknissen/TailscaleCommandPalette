@@ -45,19 +45,19 @@ jobs:
           $localeContent = Get-Content $localeFile.FullName -Raw
 
           if ($localeContent -notmatch '(?m)^PublisherUrl:') {
-            $localeContent = $localeContent -replace '(?m)^PackageName:.*$', "$0`nPublisherUrl: https://github.com/nickknissen`nPublisherSupportUrl: https://github.com/nickknissen/TailscaleCommandPalette/issues"
+            $localeContent = $localeContent -replace '(?m)^PackageName:.*$', "`$0`nPublisherUrl: https://github.com/nickknissen`nPublisherSupportUrl: https://github.com/nickknissen/TailscaleCommandPalette/issues"
           }
           if ($localeContent -notmatch '(?m)^PackageUrl:') {
-            $localeContent = $localeContent -replace '(?m)^PackageName:.*$', "$0`nPackageUrl: https://github.com/nickknissen/TailscaleCommandPalette"
+            $localeContent = $localeContent -replace '(?m)^PackageName:.*$', "`$0`nPackageUrl: https://github.com/nickknissen/TailscaleCommandPalette"
           }
           if ($localeContent -notmatch '(?m)^LicenseUrl:') {
-            $localeContent = $localeContent -replace '(?m)^License:.*$', "$0`nLicenseUrl: https://github.com/nickknissen/TailscaleCommandPalette/blob/main/LICENSE"
+            $localeContent = $localeContent -replace '(?m)^License:.*$', "`$0`nLicenseUrl: https://github.com/nickknissen/TailscaleCommandPalette/blob/main/LICENSE"
           }
           if ($localeContent -notmatch '(?m)^Tags:\s*(?:\r?\n\s*- .*?)*\r?\n\s*- windows-commandpalette-extension\s*$') {
             if ($localeContent -match '(?m)^Tags:') {
               $localeContent = $localeContent -replace '(?m)^Tags:\s*(?:\r?\n\s*- .*?)*', "Tags:`n- tailscale`n- command-palette`n- powertoys`n- windows-commandpalette-extension"
             } else {
-              $localeContent = $localeContent -replace '(?m)^ShortDescription:.*$', "$0`nTags:`n- tailscale`n- command-palette`n- powertoys`n- windows-commandpalette-extension"
+              $localeContent = $localeContent -replace '(?m)^ShortDescription:.*$', "`$0`nTags:`n- tailscale`n- command-palette`n- powertoys`n- windows-commandpalette-extension"
             }
           }
 
