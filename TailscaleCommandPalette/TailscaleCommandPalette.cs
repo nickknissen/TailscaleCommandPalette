@@ -9,7 +9,7 @@ using Microsoft.CommandPalette.Extensions;
 
 namespace TailscaleCommandPalette;
 
-[Guid("3cfcf7d9-5533-4a0a-84b5-f4fa498eb009")]
+[Guid("d4e5f6a7-b8c9-4d0e-a1b2-c3d4e5f6a7b8")]
 public sealed partial class TailscaleCommandPalette : IExtension, IDisposable
 {
     private readonly ManualResetEvent _extensionDisposedEvent;

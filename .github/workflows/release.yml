@@ -1,0 +1,68 @@
+name: Release Extension
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version (e.g. 2.0.0)"
+        required: true
+      release_notes:
+        description: "Release notes"
+        required: false
+        default: ""
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        platform: [x64, arm64]
+    env:
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+        shell: pwsh
+
+      - name: Build and create installer
+        working-directory: TailscaleCommandPalette
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+        run: .\build-exe.ps1 -Version "${{ inputs.version }}" -Platforms @("${{ matrix.platform }}") -SourceRevisionId "$env:GITHUB_SHA"
+        shell: pwsh
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-${{ matrix.platform }}
+          path: TailscaleCommandPalette/bin/Release/installer/*-${{ matrix.platform }}.exe
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: installers
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.version }}
+          name: v${{ inputs.version }}
+          body: ${{ inputs.release_notes }}
+          files: installers/*.exe
+          draft: false
+          prerelease: false

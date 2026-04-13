@@ -11,13 +11,13 @@
   <Identity
     Name="TailscaleCommandPalette"
     Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
-    Version="0.0.1.0" />
-  <!-- When you're ready to publish your extension, you'll need to change the
-       Publisher= to match your own identity -->
+    Version="2.0.0.0" />
+  <!-- Before submitting to WinGet/Partner Center, update Publisher= to the exact
+       publisher identity from your signing certificate / Store account. -->
 
   <Properties>
     <DisplayName>Tailscale Command Palette</DisplayName>
-    <PublisherDisplayName>A Lone Developer</PublisherDisplayName>
+    <PublisherDisplayName>Nick Knissen</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -47,20 +47,20 @@
         <com:Extension Category="windows.comServer">
           <com:ComServer>
             <com:ExeServer Executable="TailscaleCommandPalette.exe" Arguments="-RegisterProcessAsComServer" DisplayName="Tailscale Command Palette">
-              <com:Class Id="3cfcf7d9-5533-4a0a-84b5-f4fa498eb009" DisplayName="Tailscale Command Palette" />
+              <com:Class Id="d4e5f6a7-b8c9-4d0e-a1b2-c3d4e5f6a7b8" DisplayName="Tailscale Command Palette" />
             </com:ExeServer>
           </com:ComServer>
         </com:Extension>
         <uap3:Extension Category="windows.appExtension">
           <uap3:AppExtension Name="com.microsoft.commandpalette"
-            Id="ID"
+            Id="TailscaleCommandPalette"
             PublicFolder="Public"
             DisplayName="Tailscale Command Palette"
             Description="Tailscale Command Palette">
             <uap3:Properties>
               <CmdPalProvider>
                 <Activation>
-                  <CreateInstance ClassId="3cfcf7d9-5533-4a0a-84b5-f4fa498eb009" />
+                  <CreateInstance ClassId="d4e5f6a7-b8c9-4d0e-a1b2-c3d4e5f6a7b8" />
                 </Activation>
                 <SupportedInterfaces>
                   <Commands/>

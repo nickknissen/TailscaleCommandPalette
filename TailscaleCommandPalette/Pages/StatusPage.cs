@@ -49,20 +49,30 @@ internal sealed partial class StatusPage : ListPage
             CreateInfoItem("Tailnet", string.IsNullOrWhiteSpace(status.TailnetName) ? "Unavailable" : status.TailnetName),
             CreateInfoItem("Active Exit Node", string.IsNullOrWhiteSpace(activeExitNode) ? "None" : activeExitNode),
             CreateInfoItem("Visible Devices", status.Devices.Count.ToString(CultureInfo.InvariantCulture)),
+            CreateInfoItem("Extension Version", AppReleaseInfo.DisplayVersion, AppReleaseInfo.InformationalVersion),
         };
 
         return items.ToArray();
     }
 
-    private static ListItem CreateInfoItem(string title, string value, string? subtitle = null)
+    private static ListItem CreateInfoItem(string title, string value, string? detail = null)
     {
+        var moreCommands = new List<CommandContextItem>();
+        if (!string.IsNullOrWhiteSpace(detail))
+        {
+            moreCommands.Add(new CommandContextItem(new CopyTextCommand(detail) { Name = $"Copy {title} Detail" }));
+        }
+
+        if (title == "Extension Version" && !string.IsNullOrWhiteSpace(AppReleaseInfo.CommitHash))
+        {
+            moreCommands.Add(new CommandContextItem(new CopyTextCommand(AppReleaseInfo.CommitHash!) { Name = "Copy Commit Hash" }));
+        }
+
         return new ListItem(new CopyTextCommand(value) { Name = $"Copy {title}" })
         {
             Title = title,
             Subtitle = value,
-            MoreCommands = string.IsNullOrWhiteSpace(subtitle)
-                ? []
-                : [new CommandContextItem(new CopyTextCommand(subtitle) { Name = $"Copy {title} Detail" })],
+            MoreCommands = moreCommands.ToArray(),
         };
     }
 }

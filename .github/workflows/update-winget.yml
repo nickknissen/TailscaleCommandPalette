@@ -1,0 +1,83 @@
+name: Update WinGet
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish (e.g. 2.0.0)"
+        required: true
+
+jobs:
+  update:
+    runs-on: windows-latest
+    steps:
+      - name: Determine version
+        id: version
+        shell: pwsh
+        run: |
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            $version = "${{ inputs.version }}"
+          } else {
+            $version = "${{ github.event.release.tag_name }}" -replace '^v', ''
+          }
+          "VERSION=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Install wingetcreate
+        shell: pwsh
+        run: Invoke-WebRequest -Uri https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
+
+      - name: Update WinGet manifest
+        shell: pwsh
+        run: |
+          $version = "${{ steps.version.outputs.VERSION }}"
+          $repo = "${{ github.repository }}"
+          $x64Url = "https://github.com/$repo/releases/download/$version/TailscaleCommandPalette-Setup-$version-x64.exe"
+          $arm64Url = "https://github.com/$repo/releases/download/$version/TailscaleCommandPalette-Setup-$version-arm64.exe"
+
+          .\wingetcreate.exe update `
+            --id nickknissen.TailscaleCommandPalette `
+            --version $version `
+            --urls $x64Url $arm64Url `
+            --out manifests
+
+          $localeFile = Get-ChildItem -Path manifests -Recurse -Filter "*.locale.en-US.yaml" | Select-Object -First 1
+          $localeContent = Get-Content $localeFile.FullName -Raw
+
+          if ($localeContent -notmatch '(?m)^PublisherUrl:') {
+            $localeContent = $localeContent -replace '(?m)^PackageName:.*$', "$0`nPublisherUrl: https://github.com/nickknissen`nPublisherSupportUrl: https://github.com/nickknissen/TailscaleCommandPalette/issues"
+          }
+          if ($localeContent -notmatch '(?m)^PackageUrl:') {
+            $localeContent = $localeContent -replace '(?m)^PackageName:.*$', "$0`nPackageUrl: https://github.com/nickknissen/TailscaleCommandPalette"
+          }
+          if ($localeContent -notmatch '(?m)^LicenseUrl:') {
+            $localeContent = $localeContent -replace '(?m)^License:.*$', "$0`nLicenseUrl: https://github.com/nickknissen/TailscaleCommandPalette/blob/main/LICENSE"
+          }
+          if ($localeContent -notmatch '(?m)^Tags:\s*(?:\r?\n\s*- .*?)*\r?\n\s*- windows-commandpalette-extension\s*$') {
+            if ($localeContent -match '(?m)^Tags:') {
+              $localeContent = $localeContent -replace '(?m)^Tags:\s*(?:\r?\n\s*- .*?)*', "Tags:`n- tailscale`n- command-palette`n- powertoys`n- windows-commandpalette-extension"
+            } else {
+              $localeContent = $localeContent -replace '(?m)^ShortDescription:.*$', "$0`nTags:`n- tailscale`n- command-palette`n- powertoys`n- windows-commandpalette-extension"
+            }
+          }
+
+          Set-Content $localeFile.FullName -Value $localeContent -NoNewline
+
+          $installerFile = Get-ChildItem -Path manifests -Recurse -Filter "*.installer.yaml" | Select-Object -First 1
+          $installerContent = Get-Content $installerFile.FullName -Raw
+          if ($installerContent -notmatch 'Microsoft\.WindowsAppRuntime\.1\.8') {
+            $dependencyBlock = @"
+          Dependencies:
+            PackageDependencies:
+            - PackageIdentifier: Microsoft.WindowsAppRuntime.1.8
+          Scope: user
+          "@
+            $dependencyBlock = ($dependencyBlock -split "`n" | ForEach-Object { $_.TrimEnd() } | Where-Object { $_ -ne "" }) -join "`n"
+            $installerContent = $installerContent -replace '(?m)^Installers:', "$dependencyBlock`nInstallers:"
+          }
+          Set-Content $installerFile.FullName -Value $installerContent -NoNewline
+
+          .\wingetcreate.exe submit `
+            --token ${{ secrets.WINGET_PAT }} `
+            manifests
