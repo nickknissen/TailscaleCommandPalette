@@ -182,12 +182,6 @@ tailscale down
 
 The extension caches CLI results briefly to avoid excessive shelling out. Reopen the page or retry after a few seconds.
 
-## Versioning
-
-Current project version: **2.0.0**
-
-Installer and WinGet continuity rely on preserving the existing app identity and installer GUID. See [`WINGET_REWRITE_CHECKLIST.md`](WINGET_REWRITE_CHECKLIST.md) for release notes related to packaging continuity.
-
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
