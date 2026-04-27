@@ -15,7 +15,7 @@
 
   <Properties>
     <DisplayName>Tailscale Command Palette</DisplayName>
-    <PublisherDisplayName>Nick Knissen</PublisherDisplayName>
+    <PublisherDisplayName>NickNissen</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
