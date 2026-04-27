@@ -49,7 +49,7 @@ param(
     [ValidateSet("x64", "arm64")]
     [string[]]$Platforms = @("x64", "arm64"),
 
-    [string]$Publisher = "CN=Nick Knissen",
+    [string]$Publisher = "CN=8E44B6E4-A8D0-49BB-8093-C2544C9DB8A7",
 
     [string]$CertBase64 = $env:SIGNING_PFX_BASE64,
 

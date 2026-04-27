@@ -9,8 +9,8 @@
   IgnorableNamespaces="uap uap3 rescap">
 
   <Identity
-    Name="TailscaleCommandPalette"
-    Publisher="CN=Nick Knissen"
+    Name="NickNissen.TailscaleCommandPalette"
+    Publisher="CN=8E44B6E4-A8D0-49BB-8093-C2544C9DB8A7"
     Version="2.0.3.0" />
 
   <Properties>
