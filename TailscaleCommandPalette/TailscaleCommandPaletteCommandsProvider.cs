@@ -27,27 +27,14 @@ public partial class TailscaleCommandPaletteCommandsProvider : CommandProvider
             Icon = commandIcon,
         };
 
-        var connectionStatus = service.GetStatus(requireConnected: false);
-        var isConnected = connectionStatus.Status?.IsConnected == true;
-        var connectionSubtitle = connectionStatus.HasError
-            ? connectionStatus.ErrorTitle
-            : isConnected
-                ? string.IsNullOrWhiteSpace(connectionStatus.Status?.TailnetName)
-                    ? "Connected"
-                    : $"Connected on {connectionStatus.Status.TailnetName}"
-                : "Disconnected";
-        var connectionCommand = isConnected
-            ? new TailscaleCliCommand(service, "Down", s => s.Disconnect())
-            : new TailscaleCliCommand(service, "Up", s => s.Connect());
-
         _commands = [
             new CommandItem(new TailscaleCommandPalettePage(service)) { Title = "All Devices", Icon = commandIcon },
             new CommandItem(new MyDevicesPage(service)) { Title = "My Devices", Icon = commandIcon },
             new CommandItem(new StatusPage(service)) { Title = "Status", Icon = commandIcon },
-            new CommandItem(connectionCommand)
+            new CommandItem(new ToggleConnectionCommand(service))
             {
-                Title = "Connection",
-                Subtitle = connectionSubtitle,
+                Title = "Toggle Connection",
+                Subtitle = "Connect or disconnect this device",
                 Icon = commandIcon,
             },
             new CommandItem(adminCommand) { Title = "Admin Console", Icon = commandIcon },
