@@ -33,12 +33,12 @@ jobs:
         run: |
           $version = "${{ steps.version.outputs.VERSION }}"
           $repo = "${{ github.repository }}"
-          $x64Url = "https://github.com/$repo/releases/download/$version/TailscaleCommandPalette-Setup-$version-x64.exe"
-          $arm64Url = "https://github.com/$repo/releases/download/$version/TailscaleCommandPalette-Setup-$version-arm64.exe"
+          $x64Url = "https://github.com/$repo/releases/download/$version/TailscaleCommandPalette_${version}.0_x64.msix"
+          $arm64Url = "https://github.com/$repo/releases/download/$version/TailscaleCommandPalette_${version}.0_arm64.msix"
 
           .\wingetcreate.exe update nickknissen.TailscaleCommandPalette `
             --version $version `
-            --urls $x64Url $arm64Url `
+            --urls "$x64Url|x64" "$arm64Url|arm64" `
             --out manifests
 
           $localeFile = Get-ChildItem -Path manifests -Recurse -Filter "*.locale.en-US.yaml" | Select-Object -First 1
