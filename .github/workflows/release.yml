@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version (e.g. 2.0.0)"
+        description: "Version (e.g. 2.0.2)"
         required: true
       release_notes:
         description: "Release notes"
@@ -13,12 +13,9 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
-    strategy:
-      matrix:
-        platform: [x64, arm64]
-    env:
-      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+    runs-on: windows-2022
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -27,35 +24,26 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
-      - name: Install Inno Setup
-        run: choco install innosetup -y --no-progress
-        shell: pwsh
-
-      - name: Build and create installer
+      - name: Build signed MSIX (x64 + arm64)
         working-directory: TailscaleCommandPalette
         env:
           GITHUB_SHA: ${{ github.sha }}
-        run: .\build-exe.ps1 -Version "${{ inputs.version }}" -Platforms @("${{ matrix.platform }}") -SourceRevisionId "$env:GITHUB_SHA"
+          SIGNING_PFX_BASE64: ${{ secrets.SIGNING_PFX_BASE64 }}
+          SIGNING_PFX_PASSWORD: ${{ secrets.SIGNING_PFX_PASSWORD }}
         shell: pwsh
+        run: |
+          if (-not $env:SIGNING_PFX_BASE64) {
+            Write-Error "SIGNING_PFX_BASE64 secret is not set. See README for cert setup."
+            exit 1
+          }
+          .\build-msix.ps1 -Version "${{ inputs.version }}" -Platforms x64,arm64
 
-      - name: Upload installer artifact
+      - name: Upload MSIX artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: installer-${{ matrix.platform }}
-          path: TailscaleCommandPalette/bin/Release/installer/*-${{ matrix.platform }}.exe
+          name: msix-packages
+          path: TailscaleCommandPalette/bin/Release/msix/*.msix
           if-no-files-found: error
-
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: installers
-          merge-multiple: true
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -63,6 +51,6 @@ jobs:
           tag_name: ${{ inputs.version }}
           name: v${{ inputs.version }}
           body: ${{ inputs.release_notes }}
-          files: installers/*.exe
+          files: TailscaleCommandPalette/bin/Release/msix/*.msix
           draft: false
           prerelease: false
