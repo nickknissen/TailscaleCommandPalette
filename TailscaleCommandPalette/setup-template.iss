@@ -1,7 +1,7 @@
 ; Inno Setup Script for Tailscale Command Palette
 ; Used by build-exe.ps1 to produce per-architecture installers for WinGet releases.
 
-#define AppVersion "2.0.0"
+#define AppVersion "2.0.1"
 
 [Setup]
 AppId={{d4e5f6a7-b8c9-4d0e-a1b2-c3d4e5f6a7b8}

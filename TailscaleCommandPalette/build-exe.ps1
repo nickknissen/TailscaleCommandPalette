@@ -1,7 +1,7 @@
 param(
     [string]$ExtensionName = "TailscaleCommandPalette",
     [string]$Configuration = "Release",
-    [string]$Version = "2.0.0",
+    [string]$Version = "2.0.1",
     [string[]]$Platforms = @("x64", "arm64"),
     [string]$SourceRevisionId = $env:GITHUB_SHA
 )
