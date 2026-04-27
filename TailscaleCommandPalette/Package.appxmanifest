@@ -10,10 +10,8 @@
 
   <Identity
     Name="TailscaleCommandPalette"
-    Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
+    Publisher="CN=Nick Knissen"
     Version="2.0.1.0" />
-  <!-- Before submitting to WinGet/Partner Center, update Publisher= to the exact
-       publisher identity from your signing certificate / Store account. -->
 
   <Properties>
     <DisplayName>Tailscale Command Palette</DisplayName>
