@@ -36,13 +36,15 @@ jobs:
             Write-Error "SIGNING_PFX_BASE64 secret is not set. See README for cert setup."
             exit 1
           }
-          .\build-msix.ps1 -Version "${{ inputs.version }}" -Platforms x64,arm64
+          .\build-msix.ps1 -Version "${{ inputs.version }}" -Platforms @('x64','arm64') -Bundle
 
       - name: Upload MSIX artifacts
         uses: actions/upload-artifact@v4
         with:
           name: msix-packages
-          path: TailscaleCommandPalette/bin/Release/msix/*.msix
+          path: |
+            TailscaleCommandPalette/bin/Release/msix/*.msix
+            TailscaleCommandPalette/bin/Release/msix/*.msixbundle
           if-no-files-found: error
 
       - name: Create GitHub Release
@@ -51,6 +53,8 @@ jobs:
           tag_name: ${{ inputs.version }}
           name: v${{ inputs.version }}
           body: ${{ inputs.release_notes }}
-          files: TailscaleCommandPalette/bin/Release/msix/*.msix
+          files: |
+            TailscaleCommandPalette/bin/Release/msix/*.msix
+            TailscaleCommandPalette/bin/Release/msix/*.msixbundle
           draft: false
           prerelease: false
