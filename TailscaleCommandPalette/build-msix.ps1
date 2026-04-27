@@ -59,7 +59,9 @@ param(
 
     [string]$OutputDir,
 
-    [string]$SourceRevisionId = $env:GITHUB_SHA
+    [string]$SourceRevisionId = $env:GITHUB_SHA,
+
+    [switch]$Bundle
 )
 
 $ErrorActionPreference = "Stop"
@@ -213,6 +215,42 @@ try {
 
         Remove-Item $stagingDir -Recurse -Force -ErrorAction SilentlyContinue
     }
+
+    if ($Bundle -and $Platforms.Count -ge 2) {
+        Write-Host "`n=== Bundling $($Platforms.Count) MSIX into .msixbundle ===" -ForegroundColor Cyan
+        $bundleName = "${ExtensionName}_${Version}.0.msixbundle"
+        $bundlePath = Join-Path $OutputDir $bundleName
+        Remove-Item $bundlePath -Force -ErrorAction SilentlyContinue
+
+        $mappingPath = Join-Path $env:TEMP "bundle-mapping-$([Guid]::NewGuid().ToString('N')).txt"
+        $lines = @("[Files]")
+        foreach ($Platform in $Platforms) {
+            $msixName = "${ExtensionName}_${Version}.0_${Platform}.msix"
+            $msixPath = Join-Path $OutputDir $msixName
+            if (-not (Test-Path $msixPath)) { throw "Bundle source missing: $msixPath" }
+            $lines += "`"$msixPath`" `"$msixName`""
+        }
+        $lines -join "`r`n" | Set-Content $mappingPath -Encoding utf8 -NoNewline
+
+        try {
+            & $makeappx bundle /f $mappingPath /p $bundlePath /bv "$Version.0" /o
+            if ($LASTEXITCODE -ne 0) { throw "makeappx bundle failed (exit $LASTEXITCODE)" }
+        } finally {
+            Remove-Item $mappingPath -Force -ErrorAction SilentlyContinue
+        }
+
+        if ($signingPfx) {
+            Write-Host "Signing $bundleName" -ForegroundColor Yellow
+            $signArgs = @('sign', '/fd', 'SHA256', '/f', $signingPfx)
+            if ($CertPassword) { $signArgs += @('/p', $CertPassword) }
+            $signArgs += $bundlePath
+            & $signtool @signArgs
+            if ($LASTEXITCODE -ne 0) { throw "signtool sign failed for $bundleName" }
+        }
+
+        $sizeMB = [math]::Round((Get-Item $bundlePath).Length / 1MB, 2)
+        Write-Host "Bundled: $bundleName ($sizeMB MB)" -ForegroundColor Green
+    }
 } finally {
     if ($CertBase64 -and $signingPfx -and (Test-Path $signingPfx)) {
         Remove-Item $signingPfx -Force -ErrorAction SilentlyContinue
@@ -220,4 +258,4 @@ try {
 }
 
 Write-Host "`n=== Done ===" -ForegroundColor Green
-Get-ChildItem $OutputDir -Filter "*.msix" | Select-Object Name, Length, LastWriteTime
+Get-ChildItem $OutputDir | Where-Object { $_.Name -match '\.msix(bundle)?$' } | Select-Object Name, Length, LastWriteTime
