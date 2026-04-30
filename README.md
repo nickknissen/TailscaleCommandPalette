@@ -29,6 +29,12 @@ The extension shells out to the local `tailscale` CLI and parses
 
 ## Installation
 
+### Microsoft Store
+
+[![Get from Microsoft Store](https://img.shields.io/badge/Microsoft%20Store-Get-blue?logo=microsoft-store)](https://apps.microsoft.com/detail/9N5NWRQ9FBLM)
+
+Open the listing: <https://apps.microsoft.com/detail/9N5NWRQ9FBLM>
+
 ### WinGet
 
 ```powershell
