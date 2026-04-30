@@ -19,6 +19,7 @@ jobs:
     runs-on: windows-2022
     permissions:
       contents: write
+      actions: write
     steps:
       - uses: actions/checkout@v4
 
@@ -61,3 +62,13 @@ jobs:
             TailscaleCommandPalette/bin/Release/msix/*.msixbundle
           draft: false
           prerelease: false
+
+      # release: published events triggered via the default GITHUB_TOKEN don't
+      # cascade to other workflows (GitHub recursion guard), so dispatch the
+      # WinGet update explicitly via workflow_dispatch.
+      - name: Trigger WinGet update
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: pwsh
+        run: |
+          gh workflow run update-winget.yml --ref main -f version=${{ inputs.version }}
