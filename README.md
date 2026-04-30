@@ -163,8 +163,9 @@ The release workflow expects two GitHub repository secrets:
   `Package.appxmanifest`.
 - `SIGNING_PFX_PASSWORD` — PFX password.
 
-`build-msix.ps1` handles signing locally too — pass `-CertPath path\to\cert.pfx`
-and `-CertPassword <password>` instead of relying on the env-based secrets.
+The shared CmdPal signing cert (used by this repo and
+[TablePlusCommandPalette](https://github.com/nickknissen/TablePlusCommandPalette))
+lives in 1Password under `Private/CmdPal Signing Cert`.
 
 ### Local build for testing
 
@@ -173,8 +174,13 @@ and `-CertPassword <password>` instead of relying on the env-based secrets.
 ```
 
 Produces `bin/Release/msix/TailscaleCommandPalette_2.0.4.0.msixbundle`. With
-no `-CertPath`/`-CertPassword`, the package is left unsigned (useful when you
-just want to inspect the package layout without going through signing).
+no `-CertPath`/`-CertPassword`, the package is left unsigned.
+
+To sign locally with the cert from 1Password:
+
+```powershell
+.\scripts\sign-local.ps1 -Path .\TailscaleCommandPalette\bin\Release\msix\*.msix*
+```
 
 ## Project structure
 
