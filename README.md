@@ -3,7 +3,7 @@
 A PowerToys Command Palette extension that brings common Tailscale actions
 and device information into the Command Palette UI.
 
-![Screenshot](docs/assets/powertoys-command-palette-screenshot.png)
+![Screenshot](docs/assets/powertoys-command-palette-screenshot.jpg)
 
 ## Features
 
