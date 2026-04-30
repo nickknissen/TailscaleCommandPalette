@@ -128,21 +128,53 @@ dotnet publish .\TailscaleCommandPalette\TailscaleCommandPalette.csproj `
   /p:WindowsPackageType=None
 ```
 
-## Packaging
+## Releasing
 
-This repository includes an Inno Setup-based installer flow.
-
-To build release installers:
+A new release is cut by triggering the `Release Extension` GitHub Actions
+workflow. It builds signed x64 + ARM64 MSIX via `build-msix.ps1`,
+combines them into a single `.msixbundle`, and creates a GitHub Release
+with the bundle and individual MSIX files attached.
 
 ```powershell
-.\TailscaleCommandPalette\build-exe.ps1
+gh workflow run release.yml --repo nickknissen/TailscaleCommandPalette `
+  -f version=2.0.4 `
+  -f release_notes="One-line summary of what changed in this release."
 ```
 
-Notes:
+When the run finishes:
 
-- Builds installers for **x64** and **arm64** by default
-- Requires **Inno Setup 6** installed locally
-- Produces installers under `TailscaleCommandPalette/bin/Release/installer`
+1. The release appears at
+   `https://github.com/nickknissen/TailscaleCommandPalette/releases/tag/<version>`.
+2. The `update-winget.yml` workflow fires automatically and submits a
+   `wingetcreate` PR to `microsoft/winget-pkgs`.
+3. To also push the same artifact to the Microsoft Store: download
+   `TailscaleCommandPalette_<version>.0.msixbundle` from the release page
+   (or `gh release download <version> --pattern *.msixbundle`), then upload
+   it in [Partner Center](https://partner.microsoft.com/dashboard/home)
+   under your app's **Packages** section. The Store re-signs the package
+   during ingestion regardless of the build-time signature.
+
+### Signing prerequisites
+
+The release workflow expects two GitHub repository secrets:
+
+- `SIGNING_PFX_BASE64` — base64-encoded PFX containing the code-signing
+  certificate. The cert subject must match the `Publisher` declared in
+  `Package.appxmanifest`.
+- `SIGNING_PFX_PASSWORD` — PFX password.
+
+`build-msix.ps1` handles signing locally too — pass `-CertPath path\to\cert.pfx`
+and `-CertPassword <password>` instead of relying on the env-based secrets.
+
+### Local build for testing
+
+```powershell
+.\TailscaleCommandPalette\build-msix.ps1 -Version 2.0.4 -Platforms @('x64','arm64') -Bundle
+```
+
+Produces `bin/Release/msix/TailscaleCommandPalette_2.0.4.0.msixbundle`. With
+no `-CertPath`/`-CertPassword`, the package is left unsigned (useful when you
+just want to inspect the package layout without going through signing).
 
 ## Project structure
 
@@ -153,8 +185,7 @@ TailscaleCommandPalette/
 ├─ Pages/         # Command Palette list pages
 ├─ Services/      # Tailscale CLI integration and parsing
 ├─ Assets/        # App and extension icons
-├─ build-exe.ps1  # Release installer build script
-└─ setup-template.iss
+└─ build-msix.ps1 # Signed MSIX build script (used by release.yml)
 ```
 
 ## Troubleshooting
