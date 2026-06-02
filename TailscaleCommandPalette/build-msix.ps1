@@ -65,7 +65,6 @@ $ErrorActionPreference = "Stop"
 
 $ExtensionName = "TailscaleCommandPalette"
 $ProjectDir    = $PSScriptRoot
-$RepoRoot      = Split-Path -Parent $ProjectDir
 $ProjectFile   = Join-Path $ProjectDir "$ExtensionName.csproj"
 
 if (-not $OutputDir) { $OutputDir = Join-Path $ProjectDir "bin\Release\msix" }
