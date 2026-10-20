@@ -62,6 +62,86 @@ public sealed class TailscaleCliService
         return devices.Where(d => d.UserId == result.Status.SelfUserId).ToArray();
     }
 
+    public (IReadOnlyList<TailscaleService> Services, string Error) GetServices()
+    {
+        try
+        {
+            var result = Execute("service list --json");
+            if (result.ExitCode != 0)
+            {
+                return (Array.Empty<TailscaleService>(), string.IsNullOrWhiteSpace(result.Error) ? "The CLI returned a non-zero exit code." : result.Error.Trim());
+            }
+
+            return (ParseServices(result.Output), string.Empty);
+        }
+        catch (Exception ex)
+        {
+            return (Array.Empty<TailscaleService>(), ex.Message);
+        }
+    }
+
+    internal static IReadOnlyList<TailscaleService> ParseServices(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return Array.Empty<TailscaleService>();
+        }
+
+        using var doc = JsonDocument.Parse(json);
+        if (doc.RootElement.ValueKind != JsonValueKind.Array)
+        {
+            return Array.Empty<TailscaleService>();
+        }
+
+        var services = new List<TailscaleService>();
+        foreach (var element in doc.RootElement.EnumerateArray())
+        {
+            var service = new TailscaleService();
+
+            if (element.TryGetProperty("Name", out var name))
+                service.Name = name.GetString() ?? string.Empty;
+
+            if (element.TryGetProperty("Hostname", out var hostname))
+                service.Hostname = (hostname.GetString() ?? string.Empty).TrimEnd('.');
+
+            if (element.TryGetProperty("Ports", out var ports) && ports.ValueKind == JsonValueKind.Array)
+            {
+                service.Ports = ports.EnumerateArray()
+                    .Select(p => p.GetString())
+                    .Where(p => !string.IsNullOrWhiteSpace(p))
+                    .Select(p => p!)
+                    .ToArray();
+            }
+
+            if (element.TryGetProperty("Addrs", out var addrs) && addrs.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var addrElement in addrs.EnumerateArray())
+                {
+                    var addr = addrElement.GetString();
+                    if (string.IsNullOrWhiteSpace(addr) || !IPAddress.TryParse(addr, out var ipAddress))
+                    {
+                        continue;
+                    }
+
+                    if (ipAddress.AddressFamily == AddressFamily.InterNetwork && string.IsNullOrEmpty(service.TailscaleIPv4))
+                    {
+                        service.TailscaleIPv4 = addr;
+                    }
+                    else if (ipAddress.AddressFamily == AddressFamily.InterNetworkV6 && string.IsNullOrEmpty(service.TailscaleIPv6))
+                    {
+                        service.TailscaleIPv6 = addr;
+                    }
+                }
+            }
+
+            services.Add(service);
+        }
+
+        return services
+            .OrderBy(s => s.DisplayName, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+    }
+
     public (bool Success, string Message) Connect()
     {
         var result = Execute("up");

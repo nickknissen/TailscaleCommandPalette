@@ -9,6 +9,7 @@ and device information into the Command Palette UI.
 
 - Browse **all devices** in your tailnet
 - Browse **only your devices**
+- Browse **Tailscale Services** your device can reach
 - View **connection status** and local Tailscale details
 - Quickly **connect** or **disconnect** Tailscale
 - Open the **Tailscale Admin Console**
@@ -65,6 +66,8 @@ Top-level commands:
 - **All Devices** — full visible tailnet inventory, grouped by *This Device*
   / *Online* / *Offline*
 - **My Devices** — devices owned by the currently signed-in Tailscale user
+- **Services** — Tailscale Services available to this device (from
+  `tailscale service list --json`), with their IPs, endpoints and MagicDNS name
 - **Status** — connection state, hostname, local Tailscale IPs, tailnet
   name, active exit node, visible device count
 - **Connection** — toggle between *Up* (when disconnected) and *Down* (when
@@ -73,7 +76,7 @@ Top-level commands:
 
 Selecting a device copies its primary Tailscale IP by default. Additional
 context actions include **Copy IPv6**, **Copy MagicDNS**, and **Open in
-browser**.
+browser**. Services offer the same actions.
 
 ## Development
 

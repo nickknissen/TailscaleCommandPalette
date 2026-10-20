@@ -30,6 +30,7 @@ public partial class TailscaleCommandPaletteCommandsProvider : CommandProvider
         _commands = [
             new CommandItem(new TailscaleCommandPalettePage(service)) { Title = "All Devices", Subtitle = "Tailscale", Icon = commandIcon },
             new CommandItem(new MyDevicesPage(service)) { Title = "My Devices", Subtitle = "Tailscale", Icon = commandIcon },
+            new CommandItem(new ServicesPage(service)) { Title = "Services", Subtitle = "Tailscale", Icon = commandIcon },
             new CommandItem(new StatusPage(service)) { Title = "Status", Subtitle = "Tailscale", Icon = commandIcon },
             new CommandItem(new ToggleConnectionCommand(service))
             {
