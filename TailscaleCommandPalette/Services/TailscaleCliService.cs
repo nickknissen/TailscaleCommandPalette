@@ -69,7 +69,7 @@ public sealed class TailscaleCliService
             var result = Execute("service list --json");
             if (result.ExitCode != 0)
             {
-                return (Array.Empty<TailscaleService>(), string.IsNullOrWhiteSpace(result.Error) ? "The CLI returned a non-zero exit code." : result.Error.Trim());
+                return (Array.Empty<TailscaleService>(), DescribeServiceListError(result.Error));
             }
 
             return (ParseServices(result.Output), string.Empty);
@@ -78,6 +78,16 @@ public sealed class TailscaleCliService
         {
             return (Array.Empty<TailscaleService>(), ex.Message);
         }
+    }
+
+    internal static string DescribeServiceListError(string error)
+    {
+        if (error.Contains("unknown subcommand", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Requires Tailscale 1.102 or newer";
+        }
+
+        return string.IsNullOrWhiteSpace(error) ? "The CLI returned a non-zero exit code." : error.Trim();
     }
 
     internal static IReadOnlyList<TailscaleService> ParseServices(string json)

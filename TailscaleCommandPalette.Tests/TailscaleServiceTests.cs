@@ -53,6 +53,22 @@ public class TailscaleServiceTests
     }
 
     [Fact]
+    public void DescribeServiceListError_ExplainsMinimumVersionForOldClients()
+    {
+        Assert.Equal(
+            "Requires Tailscale 1.102 or newer",
+            TailscaleCliService.DescribeServiceListError("tailscale: unknown subcommand: service\n"));
+    }
+
+    [Theory]
+    [InlineData("permission denied\n", "permission denied")]
+    [InlineData("", "The CLI returned a non-zero exit code.")]
+    public void DescribeServiceListError_PassesThroughOtherErrors(string error, string expected)
+    {
+        Assert.Equal(expected, TailscaleCliService.DescribeServiceListError(error));
+    }
+
+    [Fact]
     public void BrowserUrl_UsesHttpsWhenServiceListensOn443()
     {
         var service = new TailscaleService { Hostname = "web.example.ts.net", Ports = ["tcp:443"] };
